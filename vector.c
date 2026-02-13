@@ -38,17 +38,17 @@ void _vector_init(vector* v, size_t element_size, unsigned int size, const void*
 
 
 //基本属性
-unsigned int vector_size(vector* v){
+unsigned int _vector_size(vector* v){
     return ((char*)v->end - (char*)v->begin) / v->element_size;
 }
-unsigned int vector_capacity(vector* v){
+unsigned int _vector_capacity(vector* v){
     return ((char*)v->end_of_storage - (char*)v->begin) / v->element_size;
 }
 
 
 
 //方法
-void vector_push_back(vector* v, const void* value){
+void _vector_push_back(vector* v, const void* value){
 
     //内存扩充//
 
@@ -58,20 +58,21 @@ void vector_push_back(vector* v, const void* value){
         unsigned int new_capacity;
 
         //对于空vector,默认分配1单位空间
-        if(vector_size(v)==0)
+        if(_vector_size(v)==0)
             new_capacity = 1;
         //否则，分配其2倍的空间
         else
-            new_capacity = vector_size(v)*v->element_size*2;
-        //
+            new_capacity = _vector_size(v)*2;
 
-        new_begin = realloc(v->begin, new_capacity);
+        //提前记录原长度并进行内存扩充
+        unsigned int len = _vector_size(v);
+        new_begin = (char*)realloc((char*)v->begin, new_capacity*v->element_size);
 
         //确认内存分配成功
         VECTOR_ASSERT(new_begin==NULL, "VECTOR_REALLOC_ERROR");
 
-        new_end = new_begin + vector_size(v)*v->element_size;
-        new_end_of_storage = new_begin + new_capacity;
+        new_end = new_begin + len*v->element_size;
+        new_end_of_storage = new_begin + new_capacity*v->element_size;
 
         v->begin = new_begin;  v->end = new_end; v->end_of_storage = new_end_of_storage;
     }
@@ -88,7 +89,7 @@ void vector_push_back(vector* v, const void* value){
 }
 
 
-void vector_pop_back(vector *v){
+void _vector_pop_back(vector *v){
 
     //检查是否为空
     VECTOR_ASSERT(v->end==v->begin, "VECTOR_EMPTY_ERROR");
@@ -102,11 +103,11 @@ void vector_pop_back(vector *v){
 }
 
 
-void vector_alter(vector* v, unsigned int index, void* value){
+void _vector_alter(vector* v, unsigned int index, void* value){
 
     //检查索引合法性
     VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
-    VECTOR_ASSERT(index>=vector_size(v), "VECTOR_INDEX_ERROR");
+    VECTOR_ASSERT(index>=_vector_size(v), "VECTOR_INDEX_ERROR");
 
     //取到修改地址
     char* tmp = (char*)(v->begin) + index*v->element_size;
@@ -115,11 +116,11 @@ void vector_alter(vector* v, unsigned int index, void* value){
 }
 
 
-void* vector_get(vector* v, unsigned int index){
+void* _vector_get(vector* v, unsigned int index){
 
     //检查索引合法性
     VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
-    VECTOR_ASSERT(index>=vector_size(v), "VECTOR_INDEX_ERROR");
+    VECTOR_ASSERT(index>=_vector_size(v), "VECTOR_INDEX_ERROR");
 
     //取到访问地址
     char* tmp = (char*)(v->begin) + index*v->element_size;
@@ -128,14 +129,14 @@ void* vector_get(vector* v, unsigned int index){
 }
 
 
-void vector_clear(vector* v){
+void _vector_clear(vector* v){
 
     //“清空”内容
     v->end = v->begin;
 }
 
 
-void vector_destroy(vector* v){
+void _vector_destroy(vector* v){
 
     //释放空间
     if(v->begin)
