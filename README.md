@@ -58,8 +58,9 @@ typedef struct {
 ### 错误处理
 所有涉及索引访问和内存操作的地方均挂载了 *VECTOR_ASSERT*：
 如果发生错误，程序会向 *stderr* 打印详细错误报告并直接 *abort()*。
-> [!tip] 错误类型说明
-> **VECTOR_INIT_ERROR**: 初始化内存分配失败
-> **VECTOR_REALLOC_ERROR**: 容量扩充失败
-> **VECTOR_EMPTY_ERROR**: 对空容器执行了非法操作
-> **VECTOR_INDEX_ERROR**: 访问了不合法的索引
+> [!TIP]
+> **错误类型说明**
+> - **VECTOR_INIT_ERROR**: 初始化内存分配失败
+> - **VECTOR_REALLOC_ERROR**: 容量扩充失败
+> - **VECTOR_EMPTY_ERROR**: 对空容器执行了非法操作
+> - **VECTOR_INDEX_ERROR**: 访问了不合法的索引
