@@ -3,7 +3,28 @@
 
 ***
 ## 快速使用
-基础流程
+
+### cmake配置
+#### 目录结构： 
+将 vector 库整个文件夹放在主项目的 lib 或 extern 目录下。
+
+```text
+Project/
+├── CMakeLists.txt
+├── main.c
+└── extern/
+    └── vector/
+```
+#### 主项目的 CMakeLists.txt 配置：
+```cmake
+# 1. 进入子目录并运行那里的 CMakeLists.txt
+add_subdirectory(extern/vector)
+add_executable(Project main.c)
+
+# 2. 链接vector库
+target_link_libraries(MyProject PRIVATE vector)
+```
+### 基础流程
 ```c
 vector v;
 // 1. 初始化 (变量名, 类型, 初始数量, 初始值指针)
