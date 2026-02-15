@@ -1,8 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-
-
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
