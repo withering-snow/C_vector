@@ -8,6 +8,9 @@
 //初始化
 void _vector_init(vector* v, size_t element_size, unsigned int size, const void* value){
 
+    //对重复定义的检测
+    VECTOR_ASSERT(v->begin!=NULL, "VECTOR_ALREADY_INIT_ERROR");
+
     //设置其元素大小
     v->element_size = element_size;
 
@@ -20,7 +23,7 @@ void _vector_init(vector* v, size_t element_size, unsigned int size, const void*
     //分配内存
     v->begin = malloc(v->element_size * size);
     //确认内存分配成功
-    VECTOR_ASSERT(v->begin==NULL, "VECTOR_INIT_ERROR");
+    VECTOR_ASSERT(v->begin==NULL, "VECTOR_MEMORY_INIT_ERROR");
 
     //拷贝初值
     char* tmp = (char*)(v->begin);
@@ -35,15 +38,6 @@ void _vector_init(vector* v, size_t element_size, unsigned int size, const void*
 
 }
 
-
-
-//基本属性
-unsigned int _vector_size(vector* v){
-    return ((char*)v->end - (char*)v->begin) / v->element_size;
-}
-unsigned int _vector_capacity(vector* v){
-    return ((char*)v->end_of_storage - (char*)v->begin) / v->element_size;
-}
 
 
 
@@ -69,7 +63,7 @@ void _vector_push_back(vector* v, const void* value){
         new_begin = (char*)realloc((char*)v->begin, new_capacity*v->element_size);
 
         //确认内存分配成功
-        VECTOR_ASSERT(new_begin==NULL, "VECTOR_REALLOC_ERROR");
+        VECTOR_ASSERT(new_begin==NULL, "VECTOR_EXPAND_ERROR");
 
         new_end = new_begin + len*v->element_size;
         new_end_of_storage = new_begin + new_capacity*v->element_size;
@@ -103,29 +97,14 @@ void _vector_pop_back(vector *v){
 }
 
 
-void _vector_alter(vector* v, unsigned int index, void* value){
+void* _vector_visit(const vector* v, unsigned int index){
 
     //检查索引合法性
     VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
     VECTOR_ASSERT(index>=_vector_size(v), "VECTOR_INDEX_ERROR");
 
-    //取到修改地址
-    char* tmp = (char*)(v->begin) + index*v->element_size;
-    //拷贝数据
-    memcpy(tmp, (char*)value, v->element_size);
-}
-
-
-void* _vector_get(vector* v, unsigned int index){
-
-    //检查索引合法性
-    VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
-    VECTOR_ASSERT(index>=_vector_size(v), "VECTOR_INDEX_ERROR");
-
-    //取到访问地址
-    char* tmp = (char*)(v->begin) + index*v->element_size;
-    //返回指针
-    return tmp;
+    //返回索引对应的地址
+    return (char*)(v->begin) + index*v->element_size;
 }
 
 

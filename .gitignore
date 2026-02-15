@@ -2,6 +2,7 @@
 /unix-build/
 /build/
 
+.obsidian/
 .idea/
 .vscode/
 *.swp
