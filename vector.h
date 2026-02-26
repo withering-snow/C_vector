@@ -24,6 +24,7 @@ typedef struct{
     void* end;
     void* end_of_storage;
 }vector;
+#define VECTOR_NULL {0, NULL, NULL, NULL}
 //
 
 
@@ -31,21 +32,21 @@ typedef struct{
 //函数头//
 
 //初始化
-void _vector_init(vector* v, size_t element_size, unsigned int size, const void* value);
+void _vector_init(vector* v, size_t element_size, size_t size, const void* restrict value);
 //
 
 //基本属性
-static inline unsigned int _vector_size(const vector* v){
+static inline size_t _vector_size(const vector* v){
     return ((char*)v->end - (char*)v->begin) / v->element_size;
 }
-static inline unsigned int _vector_capacity(const vector* v){
+static inline size_t _vector_capacity(const vector* v){
     return ((char*)v->end_of_storage - (char*)v->begin) / v->element_size;
 }
 
 //方法
-void _vector_push_back(vector* v, const void* value);
+void _vector_push_back(vector* v, const void* restrict value);
 void _vector_pop_back(vector* v);
-void* _vector_visit(const vector* v, unsigned int index);
+void* _vector_visit(const vector* v, size_t index);
 void _vector_clear(vector* v);
 void _vector_destroy(vector* v);
 //
