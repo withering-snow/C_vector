@@ -30,8 +30,8 @@ target_link_libraries(Project PRIVATE vector)
 ***
 ### 基础使用方法
 ```c
-vector v;
-
+// 推荐做法：使用 VECTOR_NULL 进行静态初始化，确保指针初始为 NULL
+vector v = VECTOR_NULL;
 // 初始化 (变量名, 类型, 初始数量, 初值)
 vector_init(v, int, 0, 0);
 
@@ -49,8 +49,8 @@ vector_destroy(v)
 
 **所有可使用的宏**
 - *vector_init(v, type, size, value)*: 初始化，**必须使用**。
-- *vector_size(v)*: 获取当前元素个数。
-- *vector_capacity(v)*: 获取当前内存最大容量。
+- *vector_size(v)*: 获取当前元素个数。(返回*size_t*类型)
+- *vector_capacity(v)*: 获取当前内存最大容量。(返回*size_t*类型)
 - *vector_push_back(v, value)*: 添加元素至末尾。
 - *vector_pop_back(v)*: 删除末尾元素。
 - *vector_visit(v, type, index)*: 访问对应索引的数据。
@@ -84,8 +84,11 @@ typedef struct {
 - **接口隔离**: 外部调用的所有函数均为宏，宏会调用带下划线的底层函数。
 
 ***
-### 内联函数
-对于 *vector_size(v)* 与 *vector_capacity(v)* 两个使用频率较高的函数，其函数体并未使用头文件-源文件的结构，而是使用 *static inline* 在**头文件**中直接展开定义，利用**内联函数**以提高这两个函数的效率，减少调用开销。
+### 性能优化
+#### 内联函数
+- 对于 *vector_size(v)* 与 *vector_capacity(v)* 两个使用频率较高的函数，其函数体并未使用头文件-源文件的结构，而是使用 *static inline* 在**头文件**中直接展开定义，利用**内联函数**以提高这两个函数的效率，减少调用开销。
+#### restrict优化
+-  对于 *vector_push_back* 等使用了 *restrict* 修饰符，这向编译器承诺：vector 的内存与传入的数据地址不会重叠，使得编译器可以大胆地进行指令优化。
 
 ***
 ### 扩容机制
@@ -99,7 +102,9 @@ typedef struct {
 - 在vector.h中的*VECTOR_DEBUG* 宏用于开关调试模式，在被定义时会打开**调试模式**（默认打开）。
 	-  **调试模式下**:  *VECTOR_ASSERT* 会进行对应位置的错误检测，且在进行未定义行为时会向 *stderr* 打印报错信息，触发 *abort()* 。这也会**一定程度地降低效率**。
 	- **非调试模式下**:  *VECTOR_ASSERT* 将***不会做任何检测***，所有的vector的非定义行为***不会触发段错误***。效率会有所提升，但在这种模式下不良代码***可能出现内存泄漏***，***请谨慎使用***。
-> [!TIP] *错误类型说明*
+
+> [!TIP] 
+> **错误类型说明**
 > - **VECTOR_ALREADY_INIT_ERROR**: 重复初始化
 > - **VECTOR_MEMORY_INIT_ERROR**: 初始化内存分配失败
 > - **VECTOR_EXPAND_ERROR**: 容量扩充失败

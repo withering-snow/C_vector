@@ -1,12 +1,13 @@
 #include "vector.h"
+#include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 
 
 //初始化
-void _vector_init(vector* v, size_t element_size, unsigned int size, const void* value){
+void _vector_init(vector* v, size_t element_size, size_t size, const void* restrict value){
 
     //对重复定义的检测
     VECTOR_ASSERT(v->begin!=NULL, "VECTOR_ALREADY_INIT_ERROR");
@@ -27,7 +28,7 @@ void _vector_init(vector* v, size_t element_size, unsigned int size, const void*
 
     //拷贝初值
     char* tmp = (char*)(v->begin);
-    for (unsigned int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         memcpy(tmp, (char*)value, v->element_size);
         tmp += v->element_size;
     }
@@ -42,24 +43,25 @@ void _vector_init(vector* v, size_t element_size, unsigned int size, const void*
 
 
 //方法
-void _vector_push_back(vector* v, const void* value){
+void _vector_push_back(vector* v, const void* restrict value){
 
     //内存扩充//
 
     if(v->end==v->end_of_storage){
         //创建新的指针用于迁移数据
         char* new_begin, * new_end, * new_end_of_storage;
-        unsigned int new_capacity;
+        size_t new_capacity;
+        size_t size = _vector_size(v);
 
         //对于空vector,默认分配1单位空间
-        if(_vector_size(v)==0)
+        if(size==0)
             new_capacity = 1;
         //否则，分配其2倍的空间
         else
-            new_capacity = _vector_size(v)*2;
+            new_capacity = size*2;
 
         //提前记录原长度并进行内存扩充
-        unsigned int len = _vector_size(v);
+        size_t len = size;
         new_begin = (char*)realloc((char*)v->begin, new_capacity*v->element_size);
 
         //确认内存分配成功
@@ -97,7 +99,7 @@ void _vector_pop_back(vector *v){
 }
 
 
-void* _vector_visit(const vector* v, unsigned int index){
+void* _vector_visit(const vector* v, size_t index){
 
     //检查索引合法性
     VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
