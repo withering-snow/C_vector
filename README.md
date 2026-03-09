@@ -53,6 +53,9 @@ vector_destroy(v)
 - *vector_capacity(v)*: 获取当前内存最大容量。(返回*size_t*类型)
 - *vector_push_back(v, value)*: 添加元素至末尾。
 - *vector_pop_back(v)*: 删除末尾元素。
+- *vector_fit*: 缩小容量至最小。
+- vector_front: 访问首个元素。
+- vector_back: 访问尾部元素。
 - *vector_visit(v, type, index)*: 访问对应索引的数据。
 - *vector_clear(v)*: 清空数据， 不会释放内存。
 - *vector_destroy(v)*: 释放内存，**必须使用**。
@@ -95,7 +98,7 @@ typedef struct {
 - **触发条件**: *v->end == v->end_of_storage*
 - **策略**: 初始容量为 1，此后若已满则容量翻倍（*new_capacity = current_size * 2*）。
 - **实现**: 使用 *realloc* 重新分配地址。扩容时会提前记录旧长度，并在内存迁移后通过偏移量重新定位 end 指针，避免野指针问题。
-- ==
+- **补充**: 扩容过程已经封装为 *static* 函数 *_vector_realloc* 
 ***
 ### 错误处理
 - 所有涉及索引访问和内存操作的地方均挂载了 *VECTOR_ASSERT*
