@@ -4,6 +4,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+//static函数区
+static void _vector_realloc(vector* v, size_t new_capacity){
+    //创建新的指针用于迁移数据
+    char* new_begin, * new_end, * new_end_of_storage;
+    size_t size = _vector_size(v);
+
+    //提前记录原长度并进行内存扩充
+    size_t len = size;
+    new_begin = (char*)realloc((char*)v->begin, new_capacity*v->element_size);
+
+    //确认内存分配成功
+    VECTOR_ASSERT(new_begin==NULL, "VECTOR_EXPAND_ERROR");
+
+    new_end = new_begin + len*v->element_size;
+    new_end_of_storage = new_begin + new_capacity*v->element_size;
+
+    v->begin = new_begin;  v->end = new_end; v->end_of_storage = new_end_of_storage;
+}
+
 
 
 //初始化
@@ -48,11 +67,7 @@ void _vector_push_back(vector* v, const void* restrict value){
     //内存扩充//
 
     if(v->end==v->end_of_storage){
-        //创建新的指针用于迁移数据
-        char* new_begin, * new_end, * new_end_of_storage;
-        size_t new_capacity;
-        size_t size = _vector_size(v);
-
+        size_t size = _vector_size(v), new_capacity;
         //对于空vector,默认分配1单位空间
         if(size==0)
             new_capacity = 1;
@@ -60,17 +75,8 @@ void _vector_push_back(vector* v, const void* restrict value){
         else
             new_capacity = size*2;
 
-        //提前记录原长度并进行内存扩充
-        size_t len = size;
-        new_begin = (char*)realloc((char*)v->begin, new_capacity*v->element_size);
-
-        //确认内存分配成功
-        VECTOR_ASSERT(new_begin==NULL, "VECTOR_EXPAND_ERROR");
-
-        new_end = new_begin + len*v->element_size;
-        new_end_of_storage = new_begin + new_capacity*v->element_size;
-
-        v->begin = new_begin;  v->end = new_end; v->end_of_storage = new_end_of_storage;
+        //分配新空间
+        _vector_realloc(v, new_capacity);
     }
     //
 
@@ -99,12 +105,28 @@ void _vector_pop_back(vector *v){
 }
 
 
-void* _vector_visit(const vector* v, size_t index){
+void _vector_fit(vector* v){
+    size_t size = _vector_size(v);
+    _vector_realloc(v, size);
+}
 
+
+void* _vector_front(vector* v){
+    //检查索引合法性
+    VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
+    //返回索引对应的地址
+    return (char*)v->begin;
+}
+void* _vector_back(vector* v){
+    //检查索引合法性
+    VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
+    //返回索引对应的地址
+    return (char*)v->end;
+}
+void* _vector_visit(const vector* v, size_t index){
     //检查索引合法性
     VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
     VECTOR_ASSERT(index>=_vector_size(v), "VECTOR_INDEX_ERROR");
-
     //返回索引对应的地址
     return (char*)(v->begin) + index*v->element_size;
 }
