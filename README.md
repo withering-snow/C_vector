@@ -48,17 +48,22 @@ vector_destroy(v)
 ```
 
 **所有可使用的宏**
-- *vector_init(v, type, size, value)*: 初始化，**必须使用**。
-- *vector_size(v)*: 获取当前元素个数。(返回*size_t*类型)
-- *vector_capacity(v)*: 获取当前内存最大容量。(返回*size_t*类型)
-- *vector_push_back(v, value)*: 添加元素至末尾。
-- *vector_pop_back(v)*: 删除末尾元素。
-- *vector_fit*: 缩小容量至最小。
-- vector_front: 访问首个元素。
-- vector_back: 访问尾部元素。
-- *vector_visit(v, type, index)*: 访问对应索引的数据。
-- *vector_clear(v)*: 清空数据， 不会释放内存。
-- *vector_destroy(v)*: 释放内存，**必须使用**。
+- 生命周期：
+	- *vector_init(v, type, size, value)*: 初始化，**必须使用**。
+	- *vector_destroy(v)*: 释放内存，**必须使用**。
+- 基本属性：
+	- *vector_size(v)*: 获取当前元素个数。(返回*size_t*类型)
+	- *vector_capacity(v)*: 获取当前内存最大容量。(返回*size_t*类型)
+- 操作函数：
+	- *vector_push_back(v, value)*: 添加元素至末尾。
+	- *vector_pop_back(v)*: 删除末尾元素。
+	- *vector_fit*: 缩小容量至当前有效数据大小。
+	- *vector_clear(v)*: 清空数据， 不会释放内存。
+- 访问函数：
+	- vector_front: 访问首个元素。
+	- vector_back: 访问尾部元素。
+	- *vector_visit(v, type, index)*: 访问对应索引的数据。
+
 
 ***
 ***
@@ -101,10 +106,10 @@ typedef struct {
 - **补充**: 扩容过程已经封装为 *static* 函数 *_vector_realloc* 
 ***
 ### 错误处理
-- 所有涉及索引访问和内存操作的地方均挂载了 *VECTOR_ASSERT*
-- 在vector.h中的*VECTOR_DEBUG* 宏用于开关调试模式，在被定义时会打开**调试模式**（默认打开）。
+- 所有涉及索引访问和内存操作的地方均挂载了 *VECTOR_ASSERT*
+- 在你的文件中定义宏 *VECTOR_NDEBUG* 即可关闭调试模式，否则其默认为打开。
 	-  **调试模式下**:  *VECTOR_ASSERT* 会进行对应位置的错误检测，且在进行未定义行为时会向 *stderr* 打印报错信息，触发 *abort()* 。这也会**一定程度地降低效率**。
-	- **非调试模式下**:  *VECTOR_ASSERT* 将***不会做任何检测***，所有的vector的非定义行为***不会触发段错误***。效率会有所提升，但在这种模式下不良代码***可能出现内存泄漏***，***请谨慎使用***。
+	- **非调试模式下**:  *VECTOR_ASSERT* 将***不会做任何检测***，所有的vector的非定义行为***不会触发段错误***。效率会有所提升，但在这种模式下不良代码***可能出现内存泄漏***，***请谨慎使用***。
 
 > [!TIP] 
 > **错误类型说明**
