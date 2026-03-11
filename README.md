@@ -37,11 +37,16 @@ vector_init(v, int, 0, 0);
 
 // 存入数据至尾部 (变量名, 新值)
 vector_push_back(v, 100);
-vector_push_back(v, 200);
+vector_insert(v, 1, 200);
 
 // 访问对应索引的数据 (变量名, 类型, 索引)
 int a = vector_visit(v, int, 1);
-vector_visit(v, 0, 1) = 50;
+vector_front(v, int) = 50;
+
+//遍历所有元素  (遍历变量, 变量名, 类型)
+vecrot_auto(it, v, int){
+	printf("%d ", *it);
+}
 
 // 销毁, 这一步会释放内存，为防止内存泄漏必须使用
 vector_destroy(v)
@@ -50,6 +55,7 @@ vector_destroy(v)
 **所有可使用的宏**
 - 生命周期：
 	- *vector_init(v, type, size, value)*: 初始化，**必须使用**。
+	- *vector_reserve(v, capacity)*: 扩张预留空间。
 	- *vector_destroy(v)*: 释放内存，**必须使用**。
 - 基本属性：
 	- *vector_size(v)*: 获取当前元素个数。(返回*size_t*类型)
@@ -57,12 +63,15 @@ vector_destroy(v)
 - 操作函数：
 	- *vector_push_back(v, value)*: 添加元素至末尾。
 	- *vector_pop_back(v)*: 删除末尾元素。
+	- *vector_insert(v, index, value)*: 插入元素至指定索引。
+	- *vector_erase(v, index)*: 删除索引指定元素。
 	- *vector_fit*: 缩小容量至当前有效数据大小。
 	- *vector_clear(v)*: 清空数据， 不会释放内存。
 - 访问函数：
 	- vector_front: 访问首个元素。
 	- vector_back: 访问尾部元素。
 	- *vector_visit(v, type, index)*: 访问对应索引的数据。
+	- *vector_auto(it, v, type)*: 以变量 *it* 遍历整个容器， *it* 类型为对应的指针。
 
 
 ***
@@ -101,7 +110,7 @@ typedef struct {
 ***
 ### 扩容机制
 - **触发条件**: *v->end == v->end_of_storage*
-- **策略**: 初始容量为 1，此后若已满则容量翻倍（*new_capacity = current_size * 2*）。
+- **策略**: 初始容量为 1，此后若已满则容量翻倍（*size? size\*2: 1*）。
 - **实现**: 使用 *realloc* 重新分配地址。扩容时会提前记录旧长度，并在内存迁移后通过偏移量重新定位 end 指针，避免野指针问题。
 - **补充**: 扩容过程已经封装为 *static* 函数 *_vector_realloc* 
 ***

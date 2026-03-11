@@ -62,6 +62,20 @@ void _vector_init(vector* v, size_t element_size, size_t size, const void* restr
     v->end_of_storage = tmp;
 }
 
+//空间预留//
+void _vector_reserve(vector* v, size_t capacity){
+
+    //对预留空间过小的检测
+    VECTOR_ASSERT(_vector_size(v)>capacity, "VECTOR_RESERVE_ERROR");
+
+    //对足够的空间直接返回
+    if(_vector_size(v)>=capacity)
+        return;
+
+    //预留足够空间
+    _vector_realloc(v, capacity);
+}
+
 //销毁//
 void _vector_destroy(vector* v){
 
@@ -82,16 +96,10 @@ void _vector_push_back(vector* v, const void* restrict value){
 
     //内存扩充//
     if(v->end==v->end_of_storage){
-        size_t size = _vector_size(v), new_capacity;
-        //对于空vector,默认分配1单位空间
-        if(size==0)
-            new_capacity = 1;
-        //否则，分配其2倍的空间
-        else
-            new_capacity = size*2;
+        size_t size = _vector_size(v);
 
         //分配新空间
-        _vector_realloc(v, new_capacity);
+        _vector_realloc(v, size? size*2: 1);
     }
 
     //存入数据
@@ -114,6 +122,48 @@ void _vector_pop_back(vector *v){
     tmp -= v->element_size;
 
     //更新尾指针
+    v->end = tmp;
+}
+
+//插入元素
+void _vector_insert(vector* v, size_t index, const void* restrict value){
+
+    //索引合法性检测
+    size_t size = _vector_size(v);
+    VECTOR_ASSERT(index>size, "VECTOR_INDEX_ERROR");
+
+    //检测容量大小
+    if(v->end==v->end_of_storage){
+        //容量不足扩容
+        _vector_realloc(v, size? size*2: 1);
+    }
+
+    //后移元素
+    char* target = (char*)v->begin + index*v->element_size;
+    memmove(target+v->element_size, target, (size-index)*v->element_size);
+
+    //插入元素
+    memcpy(target, value, v->element_size);
+
+    //移动指针
+    char* tmp = (char*)v->end + v->element_size;
+    v->end = tmp;
+}
+
+//删除元素
+void _vector_erase(vector* v, size_t index){
+
+    //索引合法性检测
+    VECTOR_ASSERT(v->begin==NULL, "VECTOR_EMPTY_ERROR");
+    size_t size = _vector_size(v);
+    VECTOR_ASSERT(index>=size, "VECTOR_INDEX_ERROR");
+
+    //前移元素
+    char* target = (char*)v->begin + index*v->element_size;
+    memmove(target, target+v->element_size, (size-index-1)*v->element_size);
+
+    //移动指针
+    char* tmp = (char*)v->end - v->element_size;
     v->end = tmp;
 }
 
