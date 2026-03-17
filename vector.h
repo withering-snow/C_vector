@@ -16,13 +16,13 @@ extern "C"{
 
 
 
-//对vector结构体定义
+//vector结构体定义
 typedef struct{
-    size_t element_size;
-    void* begin;
-    void* end;
-    void* end_of_storage;
-}vector;
+     size_t element_size;
+     void* begin;
+     void* end;
+     void* end_of_storage;
+ }vector;
 #define VECTOR_NULL {0, NULL, NULL, NULL}
 
 
