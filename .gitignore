@@ -7,4 +7,4 @@
 .vscode/
 *.swp
 
-test_main.c
+src/test_main.c
